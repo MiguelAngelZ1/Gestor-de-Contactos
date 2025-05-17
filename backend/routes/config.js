@@ -6,7 +6,7 @@
 
 const express = require('express');
 const router = express.Router();
-const pool = require('../index'); // Utiliza el pool definido en index.js
+const pool = require('../bd'); // ✅ Importación corregida
 
 // GET: Obtener el ingreso_total de la tabla config
 router.get('/', async (req, res) => {
@@ -19,9 +19,15 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST: Actualizar el ingreso_total en la tabla config
+// POST: Actualizar el ingreso_total
 router.post('/', async (req, res) => {
-  const { ingresoTotal } = req.body; // Se espera un JSON con la propiedad "ingresoTotal"
+  const { ingresoTotal } = req.body;
+
+  // Validación básica
+  if (typeof ingresoTotal !== 'number' || ingresoTotal < 0) {
+    return res.status(400).json({ error: 'Ingreso total inválido' });
+  }
+
   try {
     await pool.query('UPDATE config SET ingreso_total = $1 WHERE id = 1', [ingresoTotal]);
     res.json({ ingresoTotal });

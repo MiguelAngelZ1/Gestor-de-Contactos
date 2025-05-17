@@ -1,152 +1,178 @@
-/* Archivo: frontend/js/gastosSemanales.js */
+// Archivo: backend/routes/gastosSemanales.js
 
-// Asegurarse de que el código se ejecute solo en el navegador
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
 
-    // Función para formatear un número como moneda (ej. $1.234,56)
+    // Formatea número a moneda ARS
     function formatCurrency(amount) {
-      let num = parseFloat(amount);
-      if (isNaN(num)) num = 0;
-      return '$' + num.toLocaleString('es-AR', {
+      const num = Number(amount);
+      if (isNaN(num)) return '$0,00';
+      return num.toLocaleString('es-AR', {
+        style: 'currency',
+        currency: 'ARS',
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       });
     }
 
-    // Función para obtener y mostrar los gastos semanales
-    function fetchGastosSemanales() {
-      fetch('/api/gastosSemanales')
-        .then(response => response.json())
-        .then(data => {
-          // data debe venir como un objeto con claves "1", "2", "3" y "4"
-          Object.keys(data).forEach(semana => {
-            // Seleccionamos la lista de gastos para la semana correspondiente
-            const lista = document.querySelector(`ul.lista-gastos-semana[data-semana="${semana}"]`);
-            if (lista) {
-              lista.innerHTML = ''; // Limpiar contenido previo
-              data[semana].forEach(expense => {
-                const li = document.createElement('li');
-                // Mostramos descripción, monto formateado y la fecha
-                li.textContent = `${expense.descripcion} - ${formatCurrency(expense.monto)} - ${expense.fecha}`;
-                lista.appendChild(li);
-              });
-            }
+    // Muestra mensajes simples
+    function mostrarMensaje(mensaje, tipo = 'error') {
+      alert(`${tipo.toUpperCase()}: ${mensaje}`);
+    }
 
-            // Actualizar la barra de progreso y el texto (por ejemplo, mostrando el total gastado en la semana)
-            const gastosSemana = data[semana].reduce((total, exp) => total + parseFloat(exp.monto), 0);
-            const semanaDiv = document.querySelector(`div.semana[data-semana="${semana}"]`);
-            if (semanaDiv) {
-              const progressBar = semanaDiv.querySelector('.progress-bar');
-              const progressText = semanaDiv.querySelector('.progress-text');
-              // Ejemplo: máximo 1000 para determinar el ancho porcentual
-              const max = 1000;
-              const percentage = Math.min((gastosSemana / max) * 100, 100);
-              if (progressBar && progressText) {
-                progressBar.style.width = `${percentage}%`;
-                progressText.textContent = formatCurrency(gastosSemana);
-              }
-            }
+    // Obtiene y muestra gastos semanales
+    async function fetchGastosSemanales() {
+      try {
+        const response = await fetch('/api/gastosSemanales');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const data = await response.json();
+
+        Object.keys(data).forEach(semana => {
+          const lista = document.querySelector(`ul.lista-gastos-semana[data-semana="${semana}"]`);
+          if (!lista) return;
+
+          lista.innerHTML = '';
+          data[semana].forEach(expense => {
+            const li = document.createElement('li');
+            li.textContent = `${expense.descripcion} - ${formatCurrency(expense.monto)} - ${expense.fecha}`;
+            lista.appendChild(li);
           });
-        })
-        .catch(error => console.error("Error al obtener gastos semanales:", error));
+
+          const gastosSemana = data[semana].reduce((total, exp) => total + Number(exp.monto), 0);
+          const semanaDiv = document.querySelector(`div.semana[data-semana="${semana}"]`);
+          if (semanaDiv) {
+            const progressBar = semanaDiv.querySelector('.progress-bar');
+            const progressText = semanaDiv.querySelector('.progress-text');
+            const max = 1000; // Valor máximo para la barra
+            const percentage = Math.min((gastosSemana / max) * 100, 100);
+
+            if (progressBar) progressBar.style.width = `${percentage}%`;
+            if (progressText) progressText.textContent = formatCurrency(gastosSemana);
+          }
+        });
+      } catch (error) {
+        console.error('Error al obtener gastos semanales:', error);
+        mostrarMensaje('No se pudo cargar la lista de gastos semanales.', 'error');
+      }
     }
 
-    // Función para agregar un gasto semanal (POST a /api/gastosSemanales/:semana)
-    function addGastoSemanal(semana, descripcion, monto, fecha) {
-      fetch(`/api/gastosSemanales/${semana}`, {
-        method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ descripcion, monto, fecha })
-      })
-        .then(response => response.json())
-        .then(newExpense => {
-          console.log("Gasto semanal agregado:", newExpense);
-          fetchGastosSemanales();
-        })
-        .catch(error => console.error("Error al agregar gasto semanal:", error));
+    // Agrega un gasto semanal
+    async function addGastoSemanal(semana, descripcion, monto, fecha) {
+      try {
+        const response = await fetch(`/api/gastosSemanales/${semana}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ descripcion, monto, fecha }),
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const newExpense = await response.json();
+        console.log('Gasto semanal agregado:', newExpense);
+        await fetchGastosSemanales();
+        mostrarMensaje('Gasto semanal agregado correctamente.', 'success');
+      } catch (error) {
+        console.error('Error al agregar gasto semanal:', error);
+        mostrarMensaje('No se pudo agregar el gasto semanal.', 'error');
+      }
     }
 
-    // Función para limpiar los gastos de una semana (DELETE a /api/gastosSemanales/:semana)
-    function clearSemana(semana) {
-      fetch(`/api/gastosSemanales/${semana}`, { method: 'DELETE' })
-        .then(response => response.json())
-        .then(result => {
-          console.log(`Gastos de la semana ${semana} eliminados:`, result);
-          fetchGastosSemanales();
-        })
-        .catch(error => console.error("Error al limpiar gastos de la semana:", error));
+    // Limpia gastos de una semana
+    async function clearSemana(semana) {
+      try {
+        const response = await fetch(`/api/gastosSemanales/${semana}`, { method: 'DELETE' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const result = await response.json();
+        console.log(`Gastos de la semana ${semana} eliminados:`, result);
+        await fetchGastosSemanales();
+        mostrarMensaje(`Gastos de la semana ${semana} eliminados.`, 'success');
+      } catch (error) {
+        console.error('Error al limpiar gastos de la semana:', error);
+        mostrarMensaje(`No se pudieron eliminar los gastos de la semana ${semana}.`, 'error');
+      }
     }
 
-    // Función para limpiar todos los gastos semanales (DELETE a /api/gastosSemanales)
-    function clearAllSemanas() {
-      fetch('/api/gastosSemanales', { method: 'DELETE' })
-        .then(response => response.json())
-        .then(result => {
-          console.log("Todos los gastos semanales eliminados:", result);
-          fetchGastosSemanales();
-        })
-        .catch(error => console.error("Error al limpiar todos los gastos semanales:", error));
+    // Limpia todos los gastos semanales
+    async function clearAllSemanas() {
+      try {
+        const response = await fetch('/api/gastosSemanales', { method: 'DELETE' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const result = await response.json();
+        console.log('Todos los gastos semanales eliminados:', result);
+        await fetchGastosSemanales();
+        mostrarMensaje('Todos los gastos semanales eliminados.', 'success');
+      } catch (error) {
+        console.error('Error al limpiar todos los gastos semanales:', error);
+        mostrarMensaje('No se pudieron eliminar todos los gastos semanales.', 'error');
+      }
     }
 
-    /*=====================================
-    =
-    =  Eventos para agregar gasto semanal mediante modal
-    =
-    =====================================*/
+    // Parsea monto de string a número flotante válido
+    function parseMonto(montoStr) {
+      if (!montoStr) return NaN;
+      const limpio = montoStr.replace(/\./g, '').replace(',', '.').replace(/[^0-9.-]/g, '');
+      return parseFloat(limpio);
+    }
 
-    // Al hacer clic en los botones "Agregar Gasto" de cada semana, se abre el modal
+    // Eventos para abrir modal de agregar gasto semanal
     document.querySelectorAll('.btn-add-semana').forEach(button => {
       button.addEventListener('click', () => {
-        // Obtiene el número de semana desde el atributo data
         const semana = button.getAttribute('data-semana');
-        // Asigna este valor al input oculto del modal
+        const modal = document.getElementById('modal-semana-add');
+        if (!modal) return;
+
         document.getElementById('semana-numero').value = semana;
-        // Prellenar la fecha actual en el input (formato ISO YYYY-MM-DD)
         document.getElementById('semana-fecha').value = new Date().toISOString().split('T')[0];
-        // Muestra el modal de agregar gasto semanal
-        document.getElementById('modal-semana-add').style.display = 'block';
+        modal.style.display = 'block';
       });
     });
 
-    // Evento para cancelar el modal de gasto semanal
+    // Evento para cancelar modal
     const modalCancel = document.getElementById('modal-semana-cancel');
     if (modalCancel) {
       modalCancel.addEventListener('click', () => {
-        document.getElementById('modal-semana-add').style.display = 'none';
+        const modal = document.getElementById('modal-semana-add');
+        if (modal) modal.style.display = 'none';
       });
     }
 
-    // Manejo del formulario del modal para agregar gasto semanal
+    // Evento para manejar formulario del modal
     const formSemanaAdd = document.getElementById('form-semana-add');
     if (formSemanaAdd) {
       formSemanaAdd.addEventListener('submit', event => {
         event.preventDefault();
+
         const semana = document.getElementById('semana-numero').value;
         const descripcion = document.getElementById('semana-descripcion').value.trim();
-        const montoStr = document.getElementById('semana-monto').value;
-        const fecha = document.getElementById('semana-fecha').value; // Campo de solo lectura
-        // Convertir el monto a número limpiando la cadena
-        const monto = parseFloat(montoStr.replace(/[^0-9.,-]+/g, '').replace(',', '.'));
-        
-        if (!descripcion || isNaN(monto) || monto <= 0 || !fecha) {
-          alert("Por favor, complete los campos de forma correcta.");
+        const montoStr = document.getElementById('semana-monto').value.trim();
+        const fecha = document.getElementById('semana-fecha').value;
+
+        const monto = parseMonto(montoStr);
+
+        if (!descripcion) {
+          mostrarMensaje('La descripción es obligatoria.', 'error');
           return;
         }
-        
+        if (isNaN(monto) || monto <= 0) {
+          mostrarMensaje('Ingrese un monto válido mayor que cero.', 'error');
+          return;
+        }
+        if (!fecha) {
+          mostrarMensaje('La fecha es obligatoria.', 'error');
+          return;
+        }
+
         addGastoSemanal(semana, descripcion, monto, fecha);
         formSemanaAdd.reset();
-        document.getElementById('modal-semana-add').style.display = 'none';
+
+        const modal = document.getElementById('modal-semana-add');
+        if (modal) modal.style.display = 'none';
       });
     }
 
-    /*=====================================
-    =
-    =  Eventos para limpiar gastos semanales
-    =
-    =====================================*/
-
-    // Evento en cada botón para limpiar una semana (btn-clear-week)
+    // Evento para limpiar gastos por semana
     document.querySelectorAll('.btn-clear-week').forEach(button => {
       button.addEventListener('click', () => {
         const semana = button.getAttribute('data-semana');
@@ -156,17 +182,17 @@ if (typeof document !== 'undefined') {
       });
     });
 
-    // Botón global para limpiar todas las semanas (btn-clear-all)
+    // Botón para limpiar todos los gastos semanales
     const btnClearAll = document.querySelector('.btn-clear-all');
     if (btnClearAll) {
       btnClearAll.addEventListener('click', () => {
-        if (confirm("¿Estás seguro de limpiar los gastos de todas las semanas?")) {
+        if (confirm('¿Estás seguro de limpiar los gastos de todas las semanas?')) {
           clearAllSemanas();
         }
       });
     }
 
-    // Finalmente, carga la lista de gastos semanales al iniciar la página
+    // Carga inicial
     fetchGastosSemanales();
   });
 }

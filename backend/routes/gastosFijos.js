@@ -1,103 +1,117 @@
-/* Archivo: frontend/js/gastosFijos.js */
+/* Archivo: backend/routes/gastosFijos.js */
 
-// Verifica que el código se esté ejecutando en el navegador
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
 
-    // Función para formatear un número como moneda (ej. $1.234,56)
+    // Formatea un número como moneda argentina ($1.234,56)
     function formatearMoneda(valor) {
-      let num = parseFloat(valor);
-      if (isNaN(num)) num = 0;
-      return '$' + num.toLocaleString('es-AR', {
+      const num = Number(valor);
+      if (isNaN(num)) return '$0,00';
+      return num.toLocaleString('es-AR', {
+        style: 'currency',
+        currency: 'ARS',
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
     }
 
-    // Función para obtener y mostrar los gastos fijos en la tabla
-    function fetchGastosFijos() {
-      fetch('/api/gastosFijos')
-        .then(response => {
-          if (!response.ok)
-            throw new Error("Error en la respuesta de la red");
-          return response.json();
-        })
-        .then(data => {
-          // Selecciona el <tbody> de la tabla donde se mostrarán los gastos
-          const tbody = document.querySelector('#tabla-gastos tbody');
-          if (tbody) {
-            tbody.innerHTML = ''; // Limpia el contenido previo
-            data.forEach(expense => {
-              const row = document.createElement('tr');
-              // Construye la fila usando la información del gasto
-              row.innerHTML = `
-                <td>${expense.descripcion}</td>
-                <td>${formatearMoneda(expense.monto)}</td>
-                <td>${expense.observaciones || ''}</td>
-                <td>${expense.estado || ''}</td>
-                <td>
-                  <button class="btn-edit" data-id="${expense.id}">Editar</button>
-                  <button class="btn-delete" data-id="${expense.id}">Eliminar</button>
-                </td>
-              `;
-              tbody.appendChild(row);
-            });
-          }
-        })
-        .catch(error => console.error("Error al obtener gastos fijos:", error));
+    // Muestra un mensaje simple (puedes personalizar o usar una librería de notificaciones)
+    function mostrarMensaje(mensaje, tipo = 'error') {
+      alert(`${tipo.toUpperCase()}: ${mensaje}`);
     }
 
-    // Función para agregar un nuevo gasto fijo mediante una petición POST
-    function addGastoFijo(descripcion, monto, observaciones, estado) {
-      // Usa la fecha actual en formato ISO (solo la parte de la fecha)
+    // Obtiene y muestra los gastos fijos
+    async function fetchGastosFijos() {
+      try {
+        const response = await fetch('/api/gastosFijos');
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+
+        const data = await response.json();
+        const tbody = document.querySelector('#tabla-gastos tbody');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+        data.forEach(expense => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${expense.descripcion}</td>
+            <td>${formatearMoneda(expense.monto)}</td>
+            <td>${expense.observaciones || ''}</td>
+            <td>${expense.estado || ''}</td>
+            <td>
+              <button class="btn-edit" data-id="${expense.id}">Editar</button>
+              <button class="btn-delete" data-id="${expense.id}">Eliminar</button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error al obtener gastos fijos:', error);
+        mostrarMensaje('No se pudo cargar la lista de gastos fijos.', 'error');
+      }
+    }
+
+    // Agrega un nuevo gasto fijo
+    async function addGastoFijo(descripcion, monto, observaciones, estado) {
       const fecha = new Date().toISOString().split('T')[0];
+      try {
+        const response = await fetch('/api/gastosFijos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ descripcion, monto, fecha, observaciones, estado }),
+        });
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
 
-      fetch('/api/gastosFijos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ descripcion, monto, fecha, observaciones, estado })
-      })
-        .then(response => {
-          if (!response.ok)
-            throw new Error("Error al agregar gasto fijo");
-          return response.json();
-        })
-        .then(newExpense => {
-          console.log('Gasto fijo agregado:', newExpense);
-          // Una vez agregado, se actualiza la lista en la tabla
-          fetchGastosFijos();
-        })
-        .catch(error => console.error("Error al agregar gasto fijo:", error));
+        const newExpense = await response.json();
+        console.log('Gasto fijo agregado:', newExpense);
+        await fetchGastosFijos();
+        mostrarMensaje('Gasto fijo agregado correctamente.', 'success');
+      } catch (error) {
+        console.error('Error al agregar gasto fijo:', error);
+        mostrarMensaje('No se pudo agregar el gasto fijo.', 'error');
+      }
     }
 
-    // Configura el evento para el formulario que agrega un gasto fijo
+    // Convierte texto a número flotante válido para monto
+    function parseMonto(montoStr) {
+      if (!montoStr) return NaN;
+      // Reemplaza coma por punto y elimina caracteres no numéricos excepto punto y signo menos
+      const limpio = montoStr.replace(/\./g, '').replace(',', '.').replace(/[^0-9.-]/g, '');
+      return parseFloat(limpio);
+    }
+
+    // Evento del formulario para agregar gasto fijo
     const formGasto = document.getElementById('form-gasto');
     if (formGasto) {
-      formGasto.addEventListener('submit', (event) => {
-        event.preventDefault(); // Evita el envío tradicional del formulario
+      formGasto.addEventListener('submit', async (event) => {
+        event.preventDefault();
 
-        // Obtiene los valores de los inputs
         const descripcion = document.getElementById('descripcion').value.trim();
-        const montoStr = document.getElementById('monto').value;
+        const montoStr = document.getElementById('monto').value.trim();
         const observaciones = document.getElementById('observaciones').value.trim();
         const estado = document.getElementById('estado').value;
 
-        // Convierte el valor del monto a número: limpia el string eliminando dos o más caracteres no numéricos
-        const monto = parseFloat(montoStr.replace(/[^0-9.,-]+/g, '').replace(',', '.'));
+        const monto = parseMonto(montoStr);
 
-        // Validaciones básicas para los campos
-        if (!descripcion || isNaN(monto) || monto <= 0 || !estado) {
-          alert("Por favor, complete correctamente todos los campos obligatorios.");
+        if (!descripcion) {
+          mostrarMensaje('La descripción es obligatoria.', 'error');
+          return;
+        }
+        if (isNaN(monto) || monto <= 0) {
+          mostrarMensaje('Ingrese un monto válido mayor que cero.', 'error');
+          return;
+        }
+        if (!estado) {
+          mostrarMensaje('Seleccione un estado.', 'error');
           return;
         }
 
-        // Se llama a la función para agregar el gasto fijo, y luego se resetea el formulario
-        addGastoFijo(descripcion, monto, observaciones, estado);
+        await addGastoFijo(descripcion, monto, observaciones, estado);
         formGasto.reset();
       });
     }
 
-    // Se carga la lista de gastos fijos al iniciar la página
+    // Carga inicial de gastos fijos
     fetchGastosFijos();
   });
 }

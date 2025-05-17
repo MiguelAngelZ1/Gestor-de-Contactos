@@ -1,11 +1,18 @@
-// backend/db.js
-require('dotenv').config(); // Carga las variables de entorno definidas en .env
+// backend/bd.js
+// ========================================
+// Configuración del pool de conexiones a PostgreSQL.
+// Utiliza variables de entorno y soporta conexión segura para Render.
+// ========================================
+
+require('dotenv').config();
 const { Pool } = require('pg');
 
-// Configuración de la conexión a PostgreSQL
+// Crea una instancia del pool de conexiones con configuración desde .env
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL, // URL de conexión definida en .env
-  ssl: { rejectUnauthorized: false } // Requerido en Render para conexiones seguras
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Necesario para Render (SSL sin verificación estricta)
+  },
 });
 
 module.exports = pool;
