@@ -11,7 +11,7 @@ require('dotenv').config(); // Carga las variables definidas en .env
 const express = require('express'); // Importa Express
 const cors = require('cors'); // Importa CORS
 const path = require('path'); // Importa path para trabajar con rutas de archivos
-const pool = require('./db'); // Importa la conexión a PostgreSQL desde db.js
+const pool = require('./bd'); // Importa la conexión a PostgreSQL desde db.js
 
 const app = express();
 const port = process.env.PORT || 3000;
