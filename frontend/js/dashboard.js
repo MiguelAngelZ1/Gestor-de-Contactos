@@ -15,17 +15,19 @@
  * @param {number} saldoRestante - Diferencia entre presupuesto y gasto.
  */
 function actualizarResumen(totalGastado, presupuesto, saldoRestante) {
-  // Función auxiliar para formatear números a dos decimales y con separador de miles.
   const formatearValor = (valor) => valor.toLocaleString('es-AR', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
-  
-  // Actualiza el contenido de cada tarjeta individualmente.
-  // Se asume que en el DOM existen elementos con los siguientes ids.
-  document.getElementById('totalGastado').innerText = `$${formatearValor(totalGastado)}`;
-  document.getElementById('presupuesto').innerText = `$${formatearValor(presupuesto)}`;
-  document.getElementById('saldoRestante').innerText = `$${formatearValor(saldoRestante)}`;
+
+  // Verifica que los elementos existen antes de actualizar
+  const totalGastadoEl = document.getElementById('totalGastado');
+  const presupuestoEl = document.getElementById('presupuesto');
+  const saldoRestanteEl = document.getElementById('saldoRestante');
+
+  if (totalGastadoEl) totalGastadoEl.innerText = `$${formatearValor(totalGastado)}`;
+  if (presupuestoEl) presupuestoEl.innerText = `$${formatearValor(presupuesto)}`;
+  if (saldoRestanteEl) saldoRestanteEl.innerText = `$${formatearValor(saldoRestante)}`;
 }
 
 /**
@@ -37,15 +39,15 @@ function actualizarResumen(totalGastado, presupuesto, saldoRestante) {
  */
 let chartInstance = null; // Variable global para mantener la instancia del gráfico.
 function actualizarGrafico(totalGastado, saldoRestante) {
-  // Se obtiene el contexto 2D del canvas con id "chartCanvas".
-  const ctx = document.getElementById('chartCanvas').getContext('2d');
-  
-  // Si ya existe un gráfico, se destruye para reinicializarlo.
+  const canvas = document.getElementById('chartCanvas');
+  if (!canvas) return; // Evita errores si el canvas no existe
+
+  const ctx = canvas.getContext('2d');
+
   if (chartInstance) {
     chartInstance.destroy();
   }
-  
-  // Datos y configuración del gráfico de barras.
+
   const data = {
     labels: ['Total Gastado', 'Saldo Restante'],
     datasets: [{
@@ -54,7 +56,7 @@ function actualizarGrafico(totalGastado, saldoRestante) {
       backgroundColor: ['#f44336', '#4caf50']
     }]
   };
-  
+
   chartInstance = new Chart(ctx, {
     type: 'bar',
     data: data,
@@ -71,9 +73,8 @@ function actualizarGrafico(totalGastado, saldoRestante) {
         y: {
           beginAtZero: true,
           ticks: {
-            // Añade el signo de dólar a cada tick
             callback: function(value) {
-              return '$' + value;
+              return '$' + value.toLocaleString('es-AR');
             }
           }
         }
@@ -82,8 +83,7 @@ function actualizarGrafico(totalGastado, saldoRestante) {
   });
 }
 
-// Ejemplo de llamadas iniciales para demostrar la funcionalidad.
-// En la aplicación real, estos valores se actualizarán dinámicamente.
+// Llamadas iniciales de ejemplo (puedes eliminarlas si cargas datos reales dinámicamente)
 actualizarResumen(0, 0, 0);
 actualizarGrafico(0, 0);
 

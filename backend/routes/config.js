@@ -6,13 +6,16 @@
 
 const express = require('express');
 const router = express.Router();
-const pool = require('../bd'); // ✅ Importación corregida
+const pool = require('../bd');
 
 // GET: Obtener el ingreso_total de la tabla config
 router.get('/', async (req, res) => {
   try {
     const result = await pool.query('SELECT ingreso_total FROM config WHERE id = 1');
-    res.json(result.rows[0]); // Ejemplo de respuesta: { ingreso_total: 500000 }
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Configuración no encontrada' });
+    }
+    res.json(result.rows[0]); // { ingreso_total: ... }
   } catch (err) {
     console.error("Error al obtener la configuración:", err);
     res.status(500).json({ error: 'Error al obtener la configuración' });
@@ -21,16 +24,24 @@ router.get('/', async (req, res) => {
 
 // POST: Actualizar el ingreso_total
 router.post('/', async (req, res) => {
-  const { ingresoTotal } = req.body;
+  let { ingresoTotal } = req.body;
 
-  // Validación básica
-  if (typeof ingresoTotal !== 'number' || ingresoTotal < 0) {
+  // Permitir ingresoTotal como string numérico y convertirlo
+  ingresoTotal = Number(ingresoTotal);
+
+  if (isNaN(ingresoTotal) || ingresoTotal < 0) {
     return res.status(400).json({ error: 'Ingreso total inválido' });
   }
 
   try {
-    await pool.query('UPDATE config SET ingreso_total = $1 WHERE id = 1', [ingresoTotal]);
-    res.json({ ingresoTotal });
+    const result = await pool.query(
+      'UPDATE config SET ingreso_total = $1 WHERE id = 1 RETURNING ingreso_total',
+      [ingresoTotal]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Configuración no encontrada' });
+    }
+    res.json(result.rows[0]); // { ingreso_total: ... }
   } catch (err) {
     console.error("Error al actualizar la configuración:", err);
     res.status(500).json({ error: 'Error al actualizar la configuración' });

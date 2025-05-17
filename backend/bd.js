@@ -7,12 +7,14 @@
 require('dotenv').config();
 const { Pool } = require('pg');
 
-// Crea una instancia del pool de conexiones con configuración desde .env
+// Configuración condicional de SSL según entorno
+const isProduction = process.env.NODE_ENV === 'production';
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false, // Necesario para Render (SSL sin verificación estricta)
-  },
+  ssl: isProduction
+    ? { rejectUnauthorized: false }
+    : false,
 });
 
 module.exports = pool;

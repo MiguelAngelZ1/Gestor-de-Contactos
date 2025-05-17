@@ -16,7 +16,12 @@ document.addEventListener('DOMContentLoaded', function() {
   // Cargar gastos desde localStorage si existen.
   const storedGastos = localStorage.getItem('gastos');
   if (storedGastos) {
-    gastos = JSON.parse(storedGastos);
+    try {
+      gastos = JSON.parse(storedGastos);
+      if (!Array.isArray(gastos)) gastos = [];
+    } catch {
+      gastos = [];
+    }
   }
 
   // Función para guardar gastos en localStorage.
@@ -78,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function validateEstado() {
     const estado = document.getElementById('estado').value;
-    if (estado === "" || estado === null) {
+    if (!estado) {
       errorEstado.innerText = "Debe seleccionar un estado del gasto.";
       return false;
     } else {
@@ -87,47 +92,53 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  document.getElementById('descripcion').addEventListener('input', validateDescripcion);
-  document.getElementById('monto').addEventListener('input', validateMonto);
-  document.getElementById('estado').addEventListener('change', validateEstado);
+  const descripcionInput = document.getElementById('descripcion');
+  const montoInput = document.getElementById('monto');
+  const estadoInput = document.getElementById('estado');
+  if (descripcionInput) descripcionInput.addEventListener('input', validateDescripcion);
+  if (montoInput) montoInput.addEventListener('input', validateMonto);
+  if (estadoInput) estadoInput.addEventListener('change', validateEstado);
 
   // Envío del formulario principal.
-  formGasto.addEventListener('submit', function(event) {
-    event.preventDefault();
+  if (formGasto) {
+    formGasto.addEventListener('submit', function(event) {
+      event.preventDefault();
 
-    const isDescValid = validateDescripcion();
-    const isMontoValid = validateMonto();
-    const isEstadoValid = validateEstado();
+      const isDescValid = validateDescripcion();
+      const isMontoValid = validateMonto();
+      const isEstadoValid = validateEstado();
 
-    if (!isDescValid || !isMontoValid || !isEstadoValid) return;
+      if (!isDescValid || !isMontoValid || !isEstadoValid) return;
 
-    const descripcion = document.getElementById('descripcion').value.trim();
-    const rawMonto = document.getElementById('monto').value;
-    const normalizedMonto = rawMonto.replace(/\$/g, '').replace(/\./g, '').replace(/,/g, '.');
-    const monto = parseFloat(normalizedMonto) || 0;
-    const observaciones = document.getElementById('observaciones').value;
-    const estado = document.getElementById('estado').value;
+      const descripcion = descripcionInput.value.trim();
+      const rawMonto = montoInput.value;
+      const normalizedMonto = rawMonto.replace(/\$/g, '').replace(/\./g, '').replace(/,/g, '.');
+      const monto = parseFloat(normalizedMonto) || 0;
+      const observaciones = document.getElementById('observaciones').value;
+      const estado = estadoInput.value;
 
-    const gasto = {
-      id: Date.now(),
-      descripcion,
-      monto,
-      observaciones,
-      estado
-    };
+      const gasto = {
+        id: Date.now(),
+        descripcion,
+        monto,
+        observaciones,
+        estado
+      };
 
-    gastos.push(gasto);
-    saveGastos();
-    renderGastos();
+      gastos.push(gasto);
+      saveGastos();
+      renderGastos();
 
-    formGasto.reset();
-    errorDescripcion.innerText = "";
-    errorMonto.innerText = "";
-    errorEstado.innerText = "";
-  });
+      formGasto.reset();
+      errorDescripcion.innerText = "";
+      errorMonto.innerText = "";
+      errorEstado.innerText = "";
+    });
+  }
 
   // Función para renderizar la tabla de gastos.
   function renderGastos() {
+    if (!tablaGastosBody) return;
     tablaGastosBody.innerHTML = '';
 
     gastos.forEach((gasto) => {
@@ -184,27 +195,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Funciones para el modal de eliminación.
   function showModal(modalElement) {
-    modalElement.style.display = 'block';
+    if (modalElement) modalElement.style.display = 'block';
   }
 
   function hideModal(modalElement) {
-    modalElement.style.display = 'none';
+    if (modalElement) modalElement.style.display = 'none';
   }
 
-  modalConfirm.addEventListener('click', function() {
-    if (deleteTargetId) {
-      gastos = gastos.filter((gasto) => String(gasto.id) !== String(deleteTargetId));
-      saveGastos();
-      renderGastos();
-      deleteTargetId = null;
-    }
-    hideModal(modalDelete);
-  });
+  if (modalConfirm) {
+    modalConfirm.addEventListener('click', function() {
+      if (deleteTargetId) {
+        gastos = gastos.filter((gasto) => String(gasto.id) !== String(deleteTargetId));
+        saveGastos();
+        renderGastos();
+        deleteTargetId = null;
+      }
+      hideModal(modalDelete);
+    });
+  }
 
-  modalCancel.addEventListener('click', function() {
-    deleteTargetId = null;
-    hideModal(modalDelete);
-  });
+  if (modalCancel) {
+    modalCancel.addEventListener('click', function() {
+      deleteTargetId = null;
+      hideModal(modalDelete);
+    });
+  }
 
   window.addEventListener('click', function(event) {
     if (event.target === modalDelete) hideModal(modalDelete);
@@ -250,9 +265,11 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Evento para cancelar la edición.
-  btnCancelEdit.addEventListener('click', function() {
-    hideModal(modalEdit);
-  });
+  if (btnCancelEdit) {
+    btnCancelEdit.addEventListener('click', function() {
+      hideModal(modalEdit);
+    });
+  }
 
   // Validación en el formulario de edición (solo para el monto y estado, por ejemplo).
   function validateEditMonto() {
@@ -270,7 +287,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function validateEditEstado() {
     const estado = editEstado.value;
-    if (estado === "" || estado === null) {
+    if (!estado) {
       errorEditEstado.innerText = "Debe seleccionar un estado.";
       return false;
     } else {
@@ -280,37 +297,39 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Evento del formulario de edición para actualizar el gasto.
-  formEdit.addEventListener('submit', function(event) {
-    event.preventDefault();
+  if (formEdit) {
+    formEdit.addEventListener('submit', function(event) {
+      event.preventDefault();
 
-    const isMontoValid = validateEditMonto();
-    const isEstadoValid = validateEditEstado();
-    if (!isMontoValid || !isEstadoValid) return;
+      const isMontoValid = validateEditMonto();
+      const isEstadoValid = validateEditEstado();
+      if (!isMontoValid || !isEstadoValid) return;
 
-    const id = editId.value;
-    const rawMonto = editMonto.value;
-    const normalizedMonto = rawMonto.replace(/\$/g, '').replace(/\./g, '').replace(/,/g, '.');
-    const monto = parseFloat(normalizedMonto) || 0;
-    const observaciones = editObservaciones.value;
-    const estado = editEstado.value;
+      const id = editId.value;
+      const rawMonto = editMonto.value;
+      const normalizedMonto = rawMonto.replace(/\$/g, '').replace(/\./g, '').replace(/,/g, '.');
+      const monto = parseFloat(normalizedMonto) || 0;
+      const observaciones = editObservaciones.value;
+      const estado = editEstado.value;
 
-    // Actualizar el gasto en el arreglo.
-    gastos = gastos.map((gasto) => {
-      if (String(gasto.id) === String(id)) {
-        return {
-          ...gasto,
-          monto,
-          observaciones,
-          estado
-        };
-      }
-      return gasto;
+      // Actualizar el gasto en el arreglo.
+      gastos = gastos.map((gasto) => {
+        if (String(gasto.id) === String(id)) {
+          return {
+            ...gasto,
+            monto,
+            observaciones,
+            estado
+          };
+        }
+        return gasto;
+      });
+
+      saveGastos();
+      renderGastos();
+      hideModal(modalEdit);
     });
-
-    saveGastos();
-    renderGastos();
-    hideModal(modalEdit);
-  });
+  }
 
   // Inicializar la tabla al cargar la página.
   renderGastos();

@@ -7,7 +7,12 @@
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
-  "keywords": ["backend", "api", "express", "postgresql"],
+  "keywords": [
+    "backend",
+    "api",
+    "express",
+    "postgresql"
+  ],
   "author": "Tu Nombre",
   "license": "MIT",
   "dependencies": {

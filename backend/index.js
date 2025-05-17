@@ -32,20 +32,21 @@ app.use('/api/config', configRoutes);
 app.use('/api/gastosFijos', gastosFijosRoutes);
 app.use('/api/gastosSemanales', gastosSemanalesRoutes);
 
-// Ruta wildcard para el frontend (Single Page Application)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
-});
-
-// Middleware para manejo de errores generales
+// Middleware para manejo de errores generales (debe ir antes del wildcard)
 app.use((err, req, res, next) => {
   console.error('Error general:', err.stack);
   res.status(500).json({ error: 'Error interno del servidor' });
 });
 
+// Ruta wildcard para el frontend (Single Page Application)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
+
 // Verificar conexión a PostgreSQL antes de iniciar el servidor
 pool.connect()
-  .then(() => {
+  .then(client => {
+    client.release();
     console.log('Conexión exitosa a PostgreSQL');
     app.listen(port, '0.0.0.0', () => {
       console.log(`Servidor corriendo en el puerto ${port}`);

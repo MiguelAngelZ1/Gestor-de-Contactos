@@ -263,10 +263,11 @@
   </footer>
   
   <!-- Inclusión de scripts -->
-  <script src="../js/gastosFijos.js"></script>
-  <script src="../js/gastosSemanales.js"></script>
-  <script src="../js/gastosFunctions.js"></script>
+  <!-- Cleave.js debe ir antes que los scripts que lo usan -->
   <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
+  <!-- El orden de los scripts es importante: primero lógica de gastos, luego utilidades generales -->
+  <script src="../js/gastosFunctions.js"></script>
+  <script src="../js/gastosSemanalesFront.js"></script>
   <script src="../js/main.js"></script>
 </body>
 </html>
