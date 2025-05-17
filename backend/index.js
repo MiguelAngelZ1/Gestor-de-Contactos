@@ -1,17 +1,17 @@
 // backend/index.js
 // ========================================
-// Este es el punto de entrada del servidor Express.
-// - Carga las variables de entorno (DATABASE_URL, PORT).
-// - Importa la conexión a PostgreSQL desde el módulo 'db.js'.
-// - Configura Express para manejar peticiones, servir archivos estáticos del directorio 'frontend'
+// Punto de entrada del servidor Express:
+// - Carga las variables de entorno.
+// - Importa la conexión a PostgreSQL desde 'db.js'.
+// - Configura Express para servir archivos estáticos del directorio 'frontend'
 //   y exponer los endpoints del API en rutas específicas.
 // ========================================
 
 require('dotenv').config(); // Carga las variables definidas en .env
 const express = require('express'); // Importa Express
-const cors = require('cors'); // Importa CORS
-const path = require('path'); // Importa path para trabajar con rutas de archivos
-const pool = require('./bd'); // Importa la conexión a PostgreSQL desde db.js
+const cors = require('cors'); // Importa CORS para permitir peticiones desde otros orígenes
+const path = require('path'); // Importa path para trabajar con rutas
+const pool = require('./db'); // Importa la conexión a PostgreSQL desde db.js
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -38,7 +38,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// Inicia el servidor en el puerto especificado y en todas las interfaces (0.0.0.0)
+// Inicia el servidor en el puerto especificado, ligándolo a todas las interfaces (0.0.0.0)
 app.listen(port, '0.0.0.0', () => {
   console.log(`Servidor corriendo en el puerto ${port}`);
 });
