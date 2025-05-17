@@ -1,8 +1,4 @@
-// backend/index.js
-// ========================================
-// Este es el punto de entrada del servidor Express.
-// - Carga las variables de entorno (DATABASE_URL, PORT).
-// - Importa la conexión a PostgreSQL desde el módulo/db.js
+// backend/db.js
 require('dotenv').config(); // Carga las variables definidas en .env
 const { Pool } = require('pg'); // Importa Pool de pg
 
