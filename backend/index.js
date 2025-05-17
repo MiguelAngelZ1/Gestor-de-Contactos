@@ -43,16 +43,20 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// Verificar conexión a PostgreSQL antes de iniciar el servidor
-pool.connect()
-  .then(client => {
-    client.release();
-    console.log('Conexión exitosa a PostgreSQL');
-    app.listen(port, '0.0.0.0', () => {
-      console.log(`Servidor corriendo en el puerto ${port}`);
+// Verifica la conexión a la base de datos antes de iniciar el servidor
+pool.query('SELECT 1')
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Servidor escuchando en http://localhost:${port}`);
     });
   })
-  .catch((err) => {
-    console.error('Error al conectar a PostgreSQL:', err);
-    process.exit(1); // Termina el proceso si falla la conexión
+  .catch(err => {
+    console.error('No se pudo conectar a la base de datos:', err);
+    process.exit(1);
   });
+
+async function fetchGastosFijos() {
+  const response = await fetch('/api/gastosFijos');
+  if (!response.ok) throw new Error('Error al obtener gastos fijos');
+  return await response.json();
+}

@@ -3,35 +3,14 @@
   Archivo: gastosFunctions.js
   Propósito: Manejar la lógica del registro de gastos fijos,
              incluyendo validación en tiempo real,
-             renderización y persistencia con localStorage,
+             renderización y persistencia usando la API REST,
              gestión de eliminación mediante modal y la funcionalidad
-             "Limpiar y Cargar" para actualizar un gasto fijo.
+             de edición para actualizar un gasto fijo.
 */
 
 document.addEventListener('DOMContentLoaded', function() {
-  let gastos = [];
   let deleteTargetId = null;
   let cleaveEditMonto = null; // Para controlar la instancia de Cleave.js en edición
-
-  // Cargar gastos desde localStorage si existen.
-  const storedGastos = localStorage.getItem('gastos');
-  if (storedGastos) {
-    try {
-      gastos = JSON.parse(storedGastos);
-      if (!Array.isArray(gastos)) gastos = [];
-    } catch {
-      gastos = [];
-    }
-  }
-
-  // Función para guardar gastos en localStorage.
-  function saveGastos() {
-    if (gastos.length > 0) {
-      localStorage.setItem('gastos', JSON.stringify(gastos));
-    } else {
-      localStorage.removeItem('gastos');
-    }
-  }
 
   // Referencias al DOM.
   const formGasto = document.getElementById('form-gasto');
@@ -45,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const modalConfirm = document.getElementById('modal-confirm');
   const modalCancel = document.getElementById('modal-cancel');
 
-  // Referencias para modal de edición ("Limpiar y Cargar").
+  // Referencias para modal de edición.
   const modalEdit = document.getElementById('modal-edit');
   const formEdit = document.getElementById('form-edit');
   const editId = document.getElementById('edit-id');
@@ -55,6 +34,14 @@ document.addEventListener('DOMContentLoaded', function() {
   const errorEditMonto = document.getElementById('error-edit-monto');
   const errorEditEstado = document.getElementById('error-edit-estado');
   const btnCancelEdit = document.getElementById('cancel-edit');
+
+  // Utilidad para formatear moneda
+  function formatearMoneda(valor) {
+    return '$' + Number(valor).toLocaleString('es-AR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
 
   // Validaciones en tiempo real para el formulario principal.
   function validateDescripcion() {
@@ -117,22 +104,23 @@ document.addEventListener('DOMContentLoaded', function() {
       const observaciones = document.getElementById('observaciones').value;
       const estado = estadoInput.value;
 
-      const gasto = {
-        id: Date.now(),
-        descripcion,
-        monto,
-        observaciones,
-        estado
-      };
-
-      gastos.push(gasto);
-      saveGastos();
-      renderGastos();
-
-      formGasto.reset();
-      errorDescripcion.innerText = "";
-      errorMonto.innerText = "";
-      errorEstado.innerText = "";
+      fetch('/api/gastosFijos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ descripcion, monto, observaciones, estado })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Error al agregar gasto');
+        return res.json();
+      })
+      .then(() => {
+        renderGastos();
+        formGasto.reset();
+        errorDescripcion.innerText = "";
+        errorMonto.innerText = "";
+        errorEstado.innerText = "";
+      })
+      .catch(() => alert('No se pudo agregar el gasto.'));
     });
   }
 
@@ -141,56 +129,53 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!tablaGastosBody) return;
     tablaGastosBody.innerHTML = '';
 
-    gastos.forEach((gasto) => {
-      const fila = document.createElement('tr');
+    fetch('/api/gastosFijos')
+      .then(res => res.json())
+      .then(gastos => {
+        gastos.forEach((gasto) => {
+          const fila = document.createElement('tr');
+          const montoFormateado = formatearMoneda(gasto.monto);
 
-      // Formatear monto en formato 'es-AR'
-      const montoFormateado = gasto.monto.toLocaleString('es-AR', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+          const estadoIcono = (gasto.estado === 'Pendiente')
+            ? '<i class="fa-solid fa-xmark" style="color: red; font-size: 1.5rem;"></i>'
+            : '<i class="fa-solid fa-check" style="color: green; font-size: 1.5rem;"></i>';
+
+          fila.innerHTML = `
+            <td>${gasto.descripcion}</td>
+            <td>${montoFormateado}</td>
+            <td>${gasto.observaciones || ''}</td>
+            <td style="text-align: center;">${estadoIcono}</td>
+            <td style="text-align: center;">
+              <button class="btn btn-reset" data-id="${gasto.id}" style="margin-right: 0.5rem;">
+                <i class="fa-solid fa-arrows-rotate"></i> Editar
+              </button>
+              <button class="btn btn-delete" data-id="${gasto.id}">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </td>
+          `;
+          tablaGastosBody.appendChild(fila);
+        });
+
+        // Asignar evento para los botones de eliminación.
+        document.querySelectorAll('.btn-delete').forEach((button) => {
+          button.addEventListener('click', function() {
+            deleteTargetId = this.getAttribute('data-id');
+            showModal(modalDelete);
+          });
+        });
+
+        // Asignar evento para los botones de edición.
+        document.querySelectorAll('.btn-reset').forEach((button) => {
+          button.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            openEditModal(id);
+          });
+        });
+      })
+      .catch(() => {
+        tablaGastosBody.innerHTML = '<tr><td colspan="5">No se pudieron cargar los gastos.</td></tr>';
       });
-
-      // Seleccionar ícono según el estado.
-      const estadoIcono = (gasto.estado === 'Pendiente')
-        ? '<i class="fa-solid fa-xmark" style="color: red; font-size: 1.5rem;"></i>'
-        : '<i class="fa-solid fa-check" style="color: green; font-size: 1.5rem;"></i>';
-
-      // Incorporar dos botones: uno para "Limpiar y Cargar" y otro para eliminar.
-      fila.innerHTML = `
-        <td>${gasto.descripcion}</td>
-        <td>$${montoFormateado}</td>
-        <td>${gasto.observaciones}</td>
-        <td style="text-align: center;">${estadoIcono}</td>
-        <td style="text-align: center;">
-          <button class="btn btn-reset" data-id="${gasto.id}" style="margin-right: 0.5rem;">
-            <i class="fa-solid fa-arrows-rotate"></i> Limpiar y Cargar
-          </button>
-          <button class="btn btn-delete" data-id="${gasto.id}">
-            <i class="fa-solid fa-trash"></i>
-          </button>
-        </td>
-      `;
-
-      tablaGastosBody.appendChild(fila);
-    });
-
-    saveGastos();
-
-    // Asignar evento para los botones de eliminación.
-    document.querySelectorAll('.btn-delete').forEach((button) => {
-      button.addEventListener('click', function() {
-        deleteTargetId = this.getAttribute('data-id');
-        showModal(modalDelete);
-      });
-    });
-
-    // Asignar evento para los botones de "Limpiar y Cargar" (edición).
-    document.querySelectorAll('.btn-reset').forEach((button) => {
-      button.addEventListener('click', function() {
-        const id = this.getAttribute('data-id');
-        openEditModal(id);
-      });
-    });
   }
 
   // Funciones para el modal de eliminación.
@@ -205,12 +190,22 @@ document.addEventListener('DOMContentLoaded', function() {
   if (modalConfirm) {
     modalConfirm.addEventListener('click', function() {
       if (deleteTargetId) {
-        gastos = gastos.filter((gasto) => String(gasto.id) !== String(deleteTargetId));
-        saveGastos();
-        renderGastos();
-        deleteTargetId = null;
+        fetch(`/api/gastosFijos/${deleteTargetId}`, {
+          method: 'DELETE'
+        })
+        .then(res => {
+          if (!res.ok) throw new Error('Error al eliminar gasto');
+          return res.json();
+        })
+        .then(() => {
+          renderGastos();
+          deleteTargetId = null;
+          hideModal(modalDelete);
+        })
+        .catch(() => alert('No se pudo eliminar el gasto.'));
+      } else {
+        hideModal(modalDelete);
       }
-      hideModal(modalDelete);
     });
   }
 
@@ -226,7 +221,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (event.target === modalEdit) hideModal(modalEdit);
   });
 
-  // Permitir cerrar los modales con Escape
   window.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
       hideModal(modalDelete);
@@ -234,44 +228,40 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Función para abrir el modal de "Limpiar y Cargar" en modo edición.
+  // Función para abrir el modal de edición.
   function openEditModal(id) {
-    const gasto = gastos.find((g) => String(g.id) === String(id));
-    if (!gasto) return;
+    fetch(`/api/gastosFijos/${id}`)
+      .then(res => res.json())
+      .then(gasto => {
+        editId.value = gasto.id;
+        editMonto.value = formatearMoneda(gasto.monto);
+        editObservaciones.value = gasto.observaciones || '';
+        editEstado.value = gasto.estado;
+        errorEditMonto.innerText = "";
+        errorEditEstado.innerText = "";
 
-    // Llenar los campos del formulario de edición con los valores actuales.
-    editId.value = gasto.id;
-    editMonto.value = `$${gasto.monto.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-    editObservaciones.value = gasto.observaciones;
-    editEstado.value = gasto.estado;
-    errorEditMonto.innerText = "";
-    errorEditEstado.innerText = "";
+        if (cleaveEditMonto) cleaveEditMonto.destroy();
+        cleaveEditMonto = new Cleave('#edit-monto', {
+          numeral: true,
+          numeralThousandsGroupStyle: 'thousand',
+          prefix: '$',
+          noImmediatePrefix: false,
+          delimiter: '.',
+          numeralDecimalMark: ',',
+          numeralDecimalScale: 2
+        });
 
-    // Destruir instancia previa de Cleave si existe
-    if (cleaveEditMonto) {
-      cleaveEditMonto.destroy();
-    }
-    cleaveEditMonto = new Cleave('#edit-monto', {
-      numeral: true,
-      numeralThousandsGroupStyle: 'thousand',
-      prefix: '$',
-      noImmediatePrefix: false,
-      delimiter: '.',
-      numeralDecimalMark: ',',
-      numeralDecimalScale: 2
-    });
-
-    showModal(modalEdit);
+        showModal(modalEdit);
+      })
+      .catch(() => alert('No se pudo cargar el gasto para editar.'));
   }
 
-  // Evento para cancelar la edición.
   if (btnCancelEdit) {
     btnCancelEdit.addEventListener('click', function() {
       hideModal(modalEdit);
     });
   }
 
-  // Validación en el formulario de edición (solo para el monto y estado, por ejemplo).
   function validateEditMonto() {
     const rawMonto = editMonto.value;
     const normalizedMonto = rawMonto.replace(/\$/g, '').replace(/\./g, '').replace(/,/g, '.');
@@ -296,7 +286,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Evento del formulario de edición para actualizar el gasto.
   if (formEdit) {
     formEdit.addEventListener('submit', function(event) {
       event.preventDefault();
@@ -312,22 +301,20 @@ document.addEventListener('DOMContentLoaded', function() {
       const observaciones = editObservaciones.value;
       const estado = editEstado.value;
 
-      // Actualizar el gasto en el arreglo.
-      gastos = gastos.map((gasto) => {
-        if (String(gasto.id) === String(id)) {
-          return {
-            ...gasto,
-            monto,
-            observaciones,
-            estado
-          };
-        }
-        return gasto;
-      });
-
-      saveGastos();
-      renderGastos();
-      hideModal(modalEdit);
+      fetch(`/api/gastosFijos/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ monto, observaciones, estado })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Error al actualizar gasto');
+        return res.json();
+      })
+      .then(() => {
+        renderGastos();
+        hideModal(modalEdit);
+      })
+      .catch(() => alert('No se pudo actualizar el gasto.'));
     });
   }
 
