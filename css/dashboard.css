@@ -1,0 +1,20 @@
+/* css/dashboard.css */
+
+/* Estilo para el contenedor de resumen financiero */
+#resumen {
+  margin-bottom: 2rem; /* Separación con otros bloques */
+}
+
+/* Estilos para el contenedor de totales */
+#totales p {
+  margin: 0.5rem 0; /* Espaciado entre párrafos */
+  font-size: 1.1rem;
+}
+
+/* Sección para gráficos (se podrá mejorar al integrar librerías de gráficos) */
+#grafico {
+  background-color: #fff;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}

@@ -1,0 +1,183 @@
+/* css/main.css */
+
+/* ======================== */
+/*  Importación de Recursos */
+/* ======================== */
+
+/* Importación global de Font Awesome para usar iconos en línea */
+/* Con esta línea, todos los iconos de Font Awesome estarán disponibles en todo el proyecto */
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css");
+
+/* ======================== */
+/*      Reset y Globales    */
+/* ======================== */
+
+/* Reset básico y configuración global */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Aseguramos que html y body ocupen el 100% de la altura y se organicen en columna */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Estilos globales para el body */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f7f7f7;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* El main ocupará el espacio disponible, empujando el footer al fondo */
+main {
+  flex: 1;
+  padding: 1rem;
+  max-width: 1200px;
+  margin: auto;
+  background-color: #fff;
+}
+
+/* ======================== */
+/*   Estilos de Enlaces     */
+/* ======================== */
+
+a i {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ======================== */
+/*  Estilos para Inputs con Underline */
+/* ======================== */
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+textarea {
+  border: none;
+  border-bottom: 2px solid #ccc;
+  background: transparent;
+  padding: 8px 4px;
+  font-size: 0.9rem;
+  transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+textarea:focus {
+  border-bottom-color: #007acc;
+  outline: none;
+}
+
+/* ======================== */
+/*   Estilos para Botones   */
+/* ======================== */
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn.submit-btn {
+  background-color: #007acc;
+  color: #fff;
+}
+
+.btn.submit-btn:hover {
+  background-color: #005fa3;
+  transform: scale(1.02);
+}
+
+.btn.clear-btn {
+  background-color: #f44336;
+  color: #fff;
+}
+
+.btn.clear-btn:hover {
+  background-color: #d32f2f;
+  transform: scale(1.02);
+}
+
+.button-group {
+  display: inline-flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ======================== */
+/*       Footer en el Pie de la Página     */
+/* ======================== */
+
+footer {
+  background: #333;
+  color: #fff;
+  text-align: center;
+  padding: 1rem;
+  margin-top: auto; /* Empuja el footer al fondo */
+}
+
+/* ======================== */
+/*       Responsividad      */
+/* ======================== */
+
+@media (max-width: 768px) {
+  /* Reduce el padding del main en pantallas pequeñas */
+  main {
+    padding: 0.5rem;
+  }
+  
+  /* Ajusta la cabecera y el footer */
+  .site-header,
+  .site-footer {
+    padding: 0.8rem;
+    text-align: center;
+  }
+  
+  .site-title {
+    font-size: 1.5rem;
+  }
+  
+  /* Ajusta el tamaño de fuente de los enlaces */
+  .nav-link {
+    font-size: 0.9rem;
+  }
+  
+  /* Los inputs ocuparán el 100% del ancho */
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  textarea {
+    width: 100%;
+  }
+  
+  /* Los botones en grupo se disponen en columna */
+  .button-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

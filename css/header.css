@@ -1,0 +1,29 @@
+/* css/header.css */
+
+/* Estilo del encabezado de la app */
+header {
+  background-color: #007acc; /* Color de fondo para el header */
+  color: #fff; /* Color del texto */
+  padding: 1rem; /* Espaciado interno */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Título del encabezado */
+header h1 {
+  margin-bottom: 0.5rem;
+}
+
+/* Estilo para el menú de navegación */
+nav ul {
+  list-style: none; /* Eliminar viñetas */
+  display: flex; /* Mostrar elementos en línea */
+  gap: 1rem; /* Espacio entre enlaces */
+}
+
+/* Enlaces del menú */
+nav ul li a {
+  color: #fff; /* Color blanco para los enlaces */
+  font-weight: bold;
+}

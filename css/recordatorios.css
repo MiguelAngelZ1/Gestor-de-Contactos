@@ -1,0 +1,253 @@
+/* css/recordatorios.css */
+
+/* Sección para configurar recordatorios */
+#configurar-recordatorios {
+  background-color: #fff;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Contenedor tipo card para el formulario (opcional si aplicas la clase card) */
+#configurar-recordatorios.card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Estilos para los grupos de campos */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="date"]:focus {
+  border-color: #007acc;
+  outline: none;
+}
+
+/* Contenedor para los botones, alineados a la derecha */
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Estilos para los botones */
+.btn {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn i {
+  margin-right: 0.5rem;
+}
+
+/* Botón de guardar recordatorio */
+.btn.submit-btn {
+  background-color: #007acc;
+  color: #fff;
+}
+
+.btn.submit-btn:hover {
+  background-color: #005fa3;
+  transform: scale(1.02);
+}
+
+/* Botón para limpiar */
+.btn.clear-btn {
+  background-color: #f44336;
+  color: #fff;
+}
+
+.btn.clear-btn:hover {
+  background-color: #d32f2f;
+  transform: scale(1.02);
+}
+
+.btn:active,
+.btn:focus {
+  transform: scale(1);
+  outline: none;
+}
+
+/* Estilo para el listado de recordatorios */
+#lista-recordatorios .reminder-item {
+  background-color: #fff;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#lista-recordatorios .reminder-item i {
+  margin-right: 0.5rem;
+}
+
+/* Estilos para el botón de eliminar dentro de un ítem */
+.reminder-item button.delete-btn {
+  margin-left: auto;
+  cursor: pointer;
+}
+
+/* =========================== */
+/* Estilos Mejorados para el Modal */
+/* =========================== */
+.modal {
+  display: none; /* Oculto por defecto */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.6); /* Fondo semitransparente */
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 1.5rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  text-align: center;
+}
+
+.modal-content .close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Contenedor para los botones dentro del modal */
+.modal-buttons {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: space-around;
+}
+
+.modal-buttons .btn {
+  flex: 1;
+  margin: 0 0.5rem;
+}
+/* =========================== */
+/* Estilos Mejorados para el Modal */
+/* =========================== */
+.modal {
+  display: none; /* Oculto por defecto */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.6); /* Fondo semitransparente */
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Para centrar completamente el contenido del modal */
+.modal-content {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: absolute;          /* Se cambia de margin auto a posición absoluta */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);  /* Centrado exacto */
+  text-align: center;
+}
+
+.modal-content .close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Contenedor para los botones dentro del modal */
+.modal-buttons {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: space-around;
+}
+
+.modal-buttons .btn {
+  flex: 1;
+  margin: 0 0.5rem;
+}
+
+/* =========================== */
+/* Estilos Mejorados para la Alerta */
+/* =========================== */
+.alert {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #4caf50; /* Verde para éxito; modifícalo según el contexto */
+  color: #fff;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  font-size: 1rem;
+  z-index: 1100;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  white-space: nowrap; /* Evita los saltos de línea */
+}
+
+.alert.visible {
+  opacity: 1;
+}

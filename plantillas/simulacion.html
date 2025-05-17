@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Configuración básica de la página -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de Gastos - Simulación</title>
+  
+  <!-- Enlaces a hojas de estilo -->
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/header.css">
+  <link rel="stylesheet" href="../css/footer.css">
+  <link rel="stylesheet" href="../css/simulacion.css">
+  
+  <!-- Incluir Cleave.js desde un CDN -->
+<script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
+</head>
+<body>
+  <!-- CABECERA: Menú con iconos inline -->
+  <header>
+    <h1>Simulaciones de Gastos</h1>
+    <nav>
+      <ul>
+        <li>
+          <a href="../index.html">
+            <i class="fas fa-home"></i> Inicio
+          </a>
+        </li>
+        <li>
+          <a href="gastos.html">
+            <i class="fas fa-wallet"></i> Gastos
+          </a>
+        </li>
+        <li>
+          <a href="recordatorios.html">
+            <i class="fas fa-bell"></i> Recordatorios
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main>
+    <!-- Sección para configurar un escenario de simulación -->
+   <section id="simulacion-form">
+  <h2>Configurar Escenario</h2>
+  <form id="simulation-form" class="formulario-general">
+    <div class="form-group">
+      <label for="ingreso">Ingreso Mensual</label>
+      <!-- Se usa type="text" para aplicar Cleave.js si es necesario -->
+      <input type="text" id="ingreso" name="ingreso" class="format-currency" placeholder="Ej: 2000" required>
+    </div>
+    <div class="form-group">
+      <label for="variacion">Variación de Gastos (%)</label>
+      <input type="text" id="variacion" name="variacion" placeholder="Ej: 10" required>
+    </div>
+    <!-- Grupo de botones alineados en línea -->
+    <div class="button-group">
+      <button type="submit" class="btn submit-btn">
+        <i class="fas fa-play"></i> Simular
+      </button>
+      <button type="button" class="btn clear-btn" onclick="document.getElementById('simulation-form').reset();">
+        <i class="fas fa-eraser"></i> Limpiar Campos
+      </button>
+    </div>
+  </form>
+</section>
+    
+    <!-- Sección de resultados de la simulación -->
+    <section id="resultado-simulacion">
+      <h2>Resultado de la Simulación</h2>
+      <div id="simulation-result">
+        <p>Aquí se cargarán los resultados de la simulación.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- PIE DE PÁGINA -->
+  <footer>
+    <p>&copy; 2025 Control de Gastos</p>
+  </footer>
+  
+  <!-- Inclusión de scripts -->
+  <script src="../js/main.js"></script>
+  <script src="../js/simulacionFunctions.js"></script>
+</body>
+</html>

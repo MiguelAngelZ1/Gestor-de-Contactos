@@ -1,0 +1,38 @@
+/* css/simulacion.css */
+
+/* Sección del formulario de simulación */
+#simulacion-form {
+  background-color: #fff;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Grupo de campos para el formulario de simulación */
+#simulacion-form .form-group {
+  margin-bottom: 1rem;
+}
+
+/* Resultados de la simulación */
+#resultado-simulacion {
+  background-color: #fff;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Estilos para el botón de limpiar campos */
+.btn.clear-btn {
+  background-color: #f44336; /* Rojo o el color que prefieras */
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 1rem; /* Espacio entre botones */
+}
+
+.btn.clear-btn:hover {
+  background-color: #d32f2f; /* Un tono más oscuro al hacer hover */
+}

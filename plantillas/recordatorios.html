@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Configuración básica -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de Gastos - Recordatorios</title>
+  
+  <!-- Enlaces a hojas de estilo -->
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/header.css">
+  <link rel="stylesheet" href="../css/footer.css">
+  <link rel="stylesheet" href="../css/recordatorios.css">
+  
+  <!-- Incluir Cleave.js desde un CDN (si se requiere para algún input) -->
+  <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
+</head>
+<body>
+  <!-- CABECERA: Menú con iconos inline -->
+  <header>
+    <h1>Recordatorios</h1>
+    <nav>
+      <ul>
+        <li>
+          <a href="../index.html">
+            <i class="fas fa-home"></i> Inicio
+          </a>
+        </li>
+        <li>
+          <a href="gastos.html">
+            <i class="fas fa-wallet"></i> Gastos
+          </a>
+        </li>
+        <li>
+          <a href="simulacion.html">
+            <i class="fas fa-chart-line"></i> Simulación
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main>
+    <!-- Sección para configurar y cargar un nuevo recordatorio -->
+    <!-- Sección para configurar y cargar un nuevo recordatorio -->
+<section id="configurar-recordatorios" class="card">
+  <h2>Configurar Nuevo Recordatorio</h2>
+  <form id="reminder-form" class="formulario-general">
+    <div class="form-group">
+      <label for="recordatorio">Descripción del Recordatorio</label>
+      <input type="text" id="recordatorio" name="recordatorio" placeholder="Ej: Pago de factura" required>
+    </div>
+    <div class="form-group">
+      <label for="fecha-recordatorio">Fecha</label>
+      <input type="date" id="fecha-recordatorio" name="fecha-recordatorio" required>
+    </div>
+    <!-- Grupo de botones alineados a la derecha -->
+    <div class="button-group">
+      <button type="submit" class="btn submit-btn">
+        <i class="fas fa-save"></i> Guardar Recordatorio
+      </button>
+      <button type="button" class="btn clear-btn" onclick="document.getElementById('reminder-form').reset();">
+        <i class="fas fa-eraser"></i> Limpiar Campos
+      </button>
+    </div>
+  </form>
+</section>
+    
+    <!-- Sección para listar los recordatorios activos (se carga dinámicamente) -->
+    <section id="lista-recordatorios">
+      <h2>Recordatorios Activos</h2>
+      <!-- Los ítems se insertarán aquí mediante JavaScript -->
+    </section>
+
+    <!-- Modal de confirmación para eliminar un recordatorio -->
+    <div id="confirmModal" class="modal">
+      <div class="modal-content">
+        <!-- Botón para cerrar el modal -->
+        <span class="close" onclick="closeModal()">&times;</span>
+        <p><i class="fas fa-exclamation-triangle"></i> ¿Está seguro de eliminar este recordatorio?</p>
+        <div class="modal-buttons">
+          <button type="button" class="btn confirm-btn" onclick="confirmDelete()">Confirmar</button>
+          <button type="button" class="btn cancel-btn" onclick="closeModal()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cartel de alerta (oculto por defecto) -->
+    <div id="alertMessage" class="alert hidden">
+      <p><i class="fas fa-check-circle"></i> Se eliminó correctamente el recordatorio</p>
+    </div>
+  </main>
+
+  <!-- PIE DE PÁGINA -->
+  <footer>
+    <p>&copy; 2025 Control de Gastos</p>
+  </footer>
+  
+  <!-- Inclusión de scripts -->
+  <script src="../js/main.js"></script>
+  <!-- Script específico para la funcionalidad de recordatorios -->
+  <script src="../js/recordatoriosFunctions.js"></script>
+</body>
+</html>

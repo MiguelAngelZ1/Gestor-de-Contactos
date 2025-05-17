@@ -1,0 +1,12 @@
+/* css/footer.css */
+
+/* Estilo del pie de página */
+footer {
+  background-color: #333; /* Fondo oscuro */
+  color: #fff; /* Texto blanco */
+  text-align: center; /* Centrar el texto */
+  padding: 0.75rem; /* Espaciado interno */
+  position: fixed; /* Fijar el footer en la parte inferior */
+  bottom: 0;
+  width: 100%;
+}

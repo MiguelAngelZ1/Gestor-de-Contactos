@@ -1,0 +1,178 @@
+/* ingresos.css */
+/* ============================================================= */
+/* Estilos para el Dashboard (Módulo Ingresos) y elementos comunes   */
+/* del header, navegación y footer, ahora con íconos integrados.     */
+/* ============================================================= */
+
+/* ------------------------------ */
+/* Header y Título con Ícono      */
+/* ------------------------------ */
+header {
+  background: #007acc;
+  color: #fff;
+  padding: 1rem;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+header h1 i {
+  margin-right: 0.5rem;
+  color: #ffcc00; /* Color distintivo para el ícono del título */
+}
+
+/* ------------------------------ */
+/* Navegación (Nav)               */
+/* ------------------------------ */
+header nav ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+header nav ul li a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.1rem;
+  position: relative;
+  padding-bottom: 2px;
+  transition: all 0.3s ease;
+}
+
+header nav ul li a:hover {
+  text-decoration: underline;
+}
+
+/* ------------------------------ */
+/* Sección de Ingresos            */
+/* ------------------------------ */
+#ingresos {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+#ingresos h2 {
+  margin-bottom: 1rem;
+}
+
+/* Formulario de Ingresos */
+.ingresos-form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.ingresos-form input {
+  padding: 0.75rem;
+  font-size: 1.2rem;
+  width: 250px;
+  text-align: center;
+  border: 2px solid #007acc;
+  border-radius: 5px;
+}
+
+.ingresos-form button {
+  padding: 0.75rem 1.5rem;
+  background: #007acc;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.ingresos-form button:hover {
+  background: #005fa3;
+}
+
+/* Estilo para los íconos dentro de los botones */
+.ingresos-form button i {
+  margin-right: 0.5rem;
+}
+
+/* ------------------------------ */
+/* Sección de Resumen Financiero  */
+/* ------------------------------ */
+#resumen-financiero {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+#resumen-financiero p {
+  font-size: 1.2rem;
+  margin: 0.5rem 0;
+}
+
+#resumen-financiero span {
+  font-weight: bold;
+}
+
+/* ------------------------------ */
+/* Estilos del Footer             */
+/* ------------------------------ */
+footer {
+  background: #333;
+  color: #fff;
+  text-align: center;
+  padding: 1rem;
+  margin-top: 2rem;
+}
+
+/* =============================== */
+/*        Media Queries          */
+/* =============================== */
+@media (max-width: 768px) {
+  /* Ajusta el título del header */
+  header h1 {
+    font-size: 1.8rem;
+  }
+  
+  /* Dispone la navegación de forma vertical y reduce el gap */
+  header nav ul {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  header nav ul li a {
+    font-size: 1rem;
+  }
+  
+  /* Ajusta el título de la sección de ingresos */
+  #ingresos h2 {
+    font-size: 1.6rem;
+  }
+  
+  /* Formulario de ingresos en columna, ancho completo */
+  .ingresos-form {
+    flex-direction: column;
+    width: 90%;
+    margin: 0 auto;
+  }
+  
+  .ingresos-form input {
+    width: 100%;
+  }
+  
+  .ingresos-form button {
+    width: 100%;
+    font-size: 1rem;
+  }
+  
+  /* Reduce el tamaño de fuente en el resumen financiero */
+  #resumen-financiero p {
+    font-size: 1rem;
+  }
+}
