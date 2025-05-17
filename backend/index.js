@@ -2,32 +2,26 @@
 // ========================================
 // Este es el punto de entrada del servidor Express.
 // - Carga las variables de entorno (DATABASE_URL, PORT).
-// - Configura la conexión a PostgreSQL usando el paquete pg.
-// - Usa Express para manejar peticiones, servir archivos estáticos del directorio 'frontend'
+// - Importa la conexión a PostgreSQL desde el módulo 'db.js'.
+// - Configura Express para manejar peticiones, servir archivos estáticos del directorio 'frontend'
 //   y exponer los endpoints del API en rutas específicas.
 // ========================================
 
 require('dotenv').config(); // Carga las variables definidas en .env
-const express = require('express'); // Importa el framework Express
-const cors = require('cors'); // Importa CORS para permitir peticiones desde otros orígenes
+const express = require('express'); // Importa Express
+const cors = require('cors'); // Importa CORS
 const path = require('path'); // Importa path para trabajar con rutas de archivos
-const { Pool } = require('pg'); // Importa el Pool de pg para la conexión a PostgreSQL
+const pool = require('./db'); // Importa la conexión a PostgreSQL desde db.js
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Configuración de la conexión a PostgreSQL
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL, // Conexión leída del .env
-  ssl: { rejectUnauthorized: false } // Requerido en Render para conexiones seguras
-});
-
 // Configuración de Middlewares
-app.use(cors()); // Habilita CORS
-app.use(express.json()); // Permite leer datos en formato JSON desde las peticiones
+app.use(cors());
+app.use(express.json());
 
 // SERVIR ARCHIVOS ESTÁTICOS
-// Se servirán los archivos que estén en la carpeta 'frontend' ubicada en la raíz del proyecto
+// Se servirán los archivos de la carpeta 'frontend' ubicada en la raíz del proyecto
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // IMPORTAR Y USAR LAS RUTAS DEL API
@@ -39,14 +33,12 @@ app.use('/api/config', configRoutes);
 app.use('/api/gastosFijos', gastosFijosRoutes);
 app.use('/api/gastosSemanales', gastosSemanalesRoutes);
 
-// Fallback: Para cualquier ruta desconocida, se envía el index.html del frontend
+// Fallback: Para cualquier ruta desconocida se envía el index.html del frontend
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// Inicia el servidor en el puerto especificado, ligándolo a todas las interfaces (0.0.0.0)
+// Inicia el servidor en el puerto especificado y en todas las interfaces (0.0.0.0)
 app.listen(port, '0.0.0.0', () => {
   console.log(`Servidor corriendo en el puerto ${port}`);
 });
-
-module.exports = pool;
